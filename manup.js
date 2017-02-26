@@ -1,12 +1,10 @@
 // this is the object we build for an ajax call to get the content of the manifest
 // it's a JSON, so we can parse it like a man-child
 // verion 0.7
-var manUpObject
+let manUpObject
 
 // data objects
-var tagArray = []
-var linkArray = []
-var validMetaValues = [{
+const validMetaValues = [{
   name: 'mobile-web-app-capable',
   manifestName: 'display'
 }, {
@@ -41,7 +39,8 @@ var validMetaValues = [{
   manifestName: 'icons',
   imageSize: '310x310'
 }]
-var validLinkValues = [{
+
+const validLinkValues = [{
   name: 'apple-touch-icon',
   manifestName: 'icons',
   imageSize: '152x152'
@@ -80,31 +79,28 @@ var validLinkValues = [{
 }]
 
 // these next two classes are building the mixed data, pulling out the values we need based on the valid values array
-var generateFullMetaData = function () {
-  for (var i = 0; i < validMetaValues.length; i++) {
-    if (manUpObject[validMetaValues[i].manifestName]) {
-      if (validMetaValues[i].manifestName === 'icons') {
+let generateFullMetaData = () => {
+  validMetaValues.forEach(validMetaValue => {
+    if (manUpObject[validMetaValue.manifestName]) {
+      if (validMetaValue.manifestName === 'icons') {
         // here we need to loop through each of the images to see if they match
-        var imageArray = manUpObject.icons
-        for (var j = 0; j < imageArray.length; j++) {
-          if (imageArray[j].sizes === validMetaValues[i].imageSize) {
+        let imageArrays = manUpObject.icons
+        imageArrays.forEach(imageArray => {
+          if (imageArray.sizes === validMetaValue.imageSize) {
             // problem is in here, need to asign proper value
-            validMetaValues[i].content = imageArray[j].src
+            validMetaValue.content = imageArray.src
           }
-        }
+        })
       } else {
-        validMetaValues[i].content = manUpObject[validMetaValues[i].manifestName]
-        if (validMetaValues[i].manifestName === 'display' && manUpObject.display === 'standalone') validMetaValues[i].content = 'yes'
-          // console.log('stop')
+        validMetaValue.content = manUpObject[validMetaValue.manifestName]
+        if (validMetaValue.manifestName === 'display' && manUpObject.display === 'standalone') validMetaValue.content = 'yes'
       }
     }
-  };
-
-  // console.log(validMetaValues)
+  })
   return validMetaValues
 }
 
-var generateFullLinkData = function () {
+let generateFullLinkData = function () {
   for (var i = 0; i < validLinkValues.length; i++) {
     if (manUpObject[validLinkValues[i].manifestName]) {
       if (validLinkValues[i].manifestName === 'icons') {
@@ -128,7 +124,7 @@ var generateFullLinkData = function () {
 
 // These are the 2 functions that build out the tags
 // TODO: make it loop once instead of tx
-var generateMetaArray = function () {
+let generateMetaArray = function () {
   var tempMetaArray = generateFullMetaData()
   var headTarget = document.getElementsByTagName('head')[0]
   for (var i = 0; i < tempMetaArray.length; i++) {
@@ -139,7 +135,7 @@ var generateMetaArray = function () {
   };
 }
 
-var generateLinkArray = function () {
+let generateLinkArray = function () {
   var tempLinkArray = generateFullLinkData()
   var headTarget = document.getElementsByTagName('head')[0]
   for (var i = 0; i < tempLinkArray.length; i++) {
@@ -157,7 +153,7 @@ var generateObj = function (ajaxString) {
   // document.getElementById("output").innerHTML = ajaxString;
   // gen object
   manUpObject = JSON.parse(ajaxString)
-
+  
   generateLinkArray()
   generateMetaArray()
 }
@@ -175,17 +171,11 @@ var makeAjax = function (url) {
   ajax.send()
 }
 
-var collectManifestObj = function () {
-  var links = document.getElementsByTagName('link')
-  for (var i = 0; i < links.length; i++) {
-    if (links[i].rel && links[i].rel === 'manifest') makeAjax(links[i].href)
-  }
+let collectManifestObj = () => {
+  let links = Array.from(document.getElementsByTagName('link'))
+  links.forEach(link => {
+    if (link.rel && link.rel === 'manifest') makeAjax(link.href)
+  })
 }
 
-var testForManifest = (function () {
-  // i'm not sure what to do here.  I am starchly against browser sniffing and there is no test (yet)
-  // I think I'm jsut going to build out the tags on every page until there is a way to test it, so far
-  // it looks like the manifest will override the tags
-  // browser: we need context here
-  collectManifestObj()
-}())
+collectManifestObj()
