@@ -1,5 +1,5 @@
 // Manup verion 1.0
-
+// forked from https://github.com/boyofgreen/ManUp.js
 class ManUp {
   constructor () {
     this.validMetaValues = [{

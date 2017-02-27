@@ -118,6 +118,9 @@ ManUp.js lets you write to the simple [Manifest for Web Apps](http://w3c.github.
 
 ```
 
+## Forked from
+[https://github.com/boyofgreen/ManUp.js](https://github.com/boyofgreen/ManUp.js)
+
 ## Known Support
 
 #### Browsers that support W3C Manifest for Web Apps
