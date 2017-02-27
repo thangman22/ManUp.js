@@ -1,6 +1,6 @@
 # ManUp.js
 
-version 0.7
+version 1.0
 
 ## What is it?
 
@@ -106,7 +106,7 @@ ManUp.js lets you write to the simple [Manifest for Web Apps](http://w3c.github.
 
 ```html
 
-<link rel="manifest" href="manifest.webmanifest">
+<link rel="manifest" href="manifest.json">
 
 ```
 
@@ -117,29 +117,6 @@ ManUp.js lets you write to the simple [Manifest for Web Apps](http://w3c.github.
 <script src="manup.js"></script>
 
 ```
-
-*Step 3*: Make sure your web server is configured to properly serve the manifest file with the proper mimetype of "application/manifest+json". In IIS you just add a `web.config` file to the root of your server and add this:
-
-```xml
-
-<?xml version="1.0"?>
-<configuration>
-  <system.webServer>
-    <staticContent>
-      <remove fileExtension=".json"/>
-      <mimeMap fileExtension=".json" mimeType="application/manifest+json"/>
-    </staticContent>
-  </system.webServer>
-  <system.web>
-    <compilation debug="true"/>
-  </system.web>
-</configuration>
-
-```
-
-## Demo Page
-
-View a demo at http://manupjs.azurewebsites.net/
 
 ## Known Support
 
