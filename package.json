@@ -4,7 +4,7 @@
   "description": "ManUp.js is a polyfill to support the Manifest for Web Apps",
   "main": "manup.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "babel manup.js --out-file manup.min.js"
   },
   "repository": {
     "type": "git",
