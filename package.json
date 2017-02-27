@@ -1,6 +1,6 @@
 {
-  "name": "manup",
-  "version": "0.8.0",
+  "name": "manupjs",
+  "version": "1.0.0",
   "description": "ManUp.js is a polyfill to support the Manifest for Web Apps",
   "main": "manup.js",
   "scripts": {
