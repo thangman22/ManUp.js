@@ -114,8 +114,13 @@ ManUp.js lets you write to the simple [Manifest for Web Apps](http://w3c.github.
 
 ```html
 
-<script src="manup.js"></script>
+<script src="manup.min.js"></script>
 
+```
+or
+
+```
+npm install manupjs
 ```
 
 ## Forked from
