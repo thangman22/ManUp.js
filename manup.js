@@ -1,10 +1,10 @@
 // this is the object we build for an ajax call to get the content of the manifest
 // it's a JSON, so we can parse it like a man-child
-// verion 0.7
+// verion 1.0
 let manUpObject
 
 // data objects
-const validMetaValues = [{
+let validMetaValues = [{
   name: 'mobile-web-app-capable',
   manifestName: 'display'
 }, {
@@ -40,7 +40,7 @@ const validMetaValues = [{
   imageSize: '310x310'
 }]
 
-const validLinkValues = [{
+let validLinkValues = [{
   name: 'apple-touch-icon',
   manifestName: 'icons',
   imageSize: '152x152'
@@ -78,97 +78,86 @@ const validLinkValues = [{
   imageSize: '192x192'
 }]
 
-// these next two classes are building the mixed data, pulling out the values we need based on the valid values array
-let generateFullMetaData = () => {
-  validMetaValues.forEach(validMetaValue => {
+let generateValidData = (validData) => {
+  let validMetaList = validData.map(validMetaValue => {
     if (manUpObject[validMetaValue.manifestName]) {
       if (validMetaValue.manifestName === 'icons') {
-        // here we need to loop through each of the images to see if they match
-        let imageArrays = manUpObject.icons
-        imageArrays.forEach(imageArray => {
-          if (imageArray.sizes === validMetaValue.imageSize) {
-            // problem is in here, need to asign proper value
-            validMetaValue.content = imageArray.src
-          }
-        })
+        validMetaValue.content = getImageSrc(manUpObject.icons, validMetaValue.imageSize)
       } else {
         validMetaValue.content = manUpObject[validMetaValue.manifestName]
         if (validMetaValue.manifestName === 'display' && manUpObject.display === 'standalone') validMetaValue.content = 'yes'
       }
     }
+    return validMetaValue
   })
-  return validMetaValues
+  return validMetaList
 }
 
-let generateFullLinkData = function () {
-  for (var i = 0; i < validLinkValues.length; i++) {
-    if (manUpObject[validLinkValues[i].manifestName]) {
-      if (validLinkValues[i].manifestName === 'icons') {
-        // here we need to loop through each of the images to see if they match
-        var imageArray = manUpObject.icons
-        for (var j = 0; j < imageArray.length; j++) {
-          if (imageArray[j].sizes === validLinkValues[i].imageSize) {
-            // problem is in here, need to asign proper value
-            validLinkValues[i].content = imageArray[j].src
-          }
-        }
-      } else {
-        validLinkValues[i].content = manUpObject[validLinkValues[i].manifestName]
-      }
+let getImageSrc = function (imageArrays, imageSize) {
+  let srcImage = imageArrays.filter(imageArray => {
+    if (imageArray.sizes === imageSize) {
+      return imageArray
     }
-  };
-
-  // console.log(validMetaValues)
-  return validLinkValues
+  })
+  return srcImage[0].src
 }
 
-// These are the 2 functions that build out the tags
-// TODO: make it loop once instead of tx
 let generateMetaArray = function () {
-  var tempMetaArray = generateFullMetaData()
-  var headTarget = document.getElementsByTagName('head')[0]
-  for (var i = 0; i < tempMetaArray.length; i++) {
-    var metaTag = document.createElement('meta')
-    metaTag.name = tempMetaArray[i].name
-    metaTag.content = tempMetaArray[i].content
-    headTarget.appendChild(metaTag)
-  };
+  let tempMetaArrays = generateValidData(validMetaValues)
+  let headTarget = document.getElementsByTagName('head')[0]
+  tempMetaArrays.forEach(tempMetaArray => {
+    if (tempMetaArray.content) {
+      var metaTag = document.createElement('meta')
+      metaTag.name = tempMetaArray.name
+      metaTag.content = tempMetaArray.content
+      headTarget.appendChild(metaTag)
+    }
+  })
 }
 
 let generateLinkArray = function () {
-  var tempLinkArray = generateFullLinkData()
+  var tempLinkArrays = generateValidData(validLinkValues)
   var headTarget = document.getElementsByTagName('head')[0]
-  for (var i = 0; i < tempLinkArray.length; i++) {
+  tempLinkArrays.forEach(tempLinkArray => {
     var linkTag = document.createElement('link')
-    linkTag.setAttribute('rel', tempLinkArray[i].name)
-    linkTag.setAttribute('sizes', tempLinkArray[i].imageSize)
-    linkTag.setAttribute('href', tempLinkArray[i].content)
+    linkTag.setAttribute('rel', tempLinkArray.name)
+    linkTag.setAttribute('sizes', tempLinkArray.imageSize)
+    linkTag.setAttribute('href', tempLinkArray.content)
     headTarget.appendChild(linkTag)
-        // console.log(linkTag);
-  }
+  })
 }
-  // these functions makes the ajax calls and assigns to manUp object
+
 var generateObj = function (ajaxString) {
-  // for testing
-  // document.getElementById("output").innerHTML = ajaxString;
-  // gen object
   manUpObject = JSON.parse(ajaxString)
-  
   generateLinkArray()
   generateMetaArray()
 }
 
-var makeAjax = function (url) {
-  if (!window.XMLHttpRequest) return
-  var fullURL
-  var pat = /^https?:\/\//i
-  pat.test(url) ? fulURL = url : fullURL = window.location.hostname + url
-  var ajax = new XMLHttpRequest()
-  ajax.onreadystatechange = function () {
-    if (ajax.readyState === 4 && ajax.status === 200) generateObj(ajax.responseText)
+let makeAjax = (url) => {
+  let fullURL
+  let pat = /^https?:\/\//i
+  if (pat.test(url)) {
+    fullURL = url
+  } else {
+    fullURL = window.location.hostname + url
   }
-  ajax.open('GET', url, true)
-  ajax.send()
+
+  if (self.fetch) {
+    fetch(fullURL)
+    .then(response => {
+      return response.text()
+    })
+    .then((text) => {
+      generateObj(text)
+    })
+  } else {
+    var ajax = new XMLHttpRequest()
+    ajax.onreadystatechange = function () {
+      if (ajax.readyState === 4 && ajax.status === 200) generateObj(ajax.responseText)
+    }
+    ajax.open('GET', fullURL, true)
+    ajax.send()
+  }
 }
 
 let collectManifestObj = () => {
