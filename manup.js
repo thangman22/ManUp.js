@@ -166,7 +166,7 @@ class ManUp {
         return imageArray
       }
     })
-    return srcImage[0].src
+    return (srcImage && srcImage.length > 0) ? srcImage[0].src : undefined
   }
 }
 
